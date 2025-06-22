@@ -1,7 +1,5 @@
 package com.diemyolo.blog_api.model.request.authentication;
 
-import java.time.LocalDateTime;
-
 import com.diemyolo.blog_api.entity.Enumberable.Gender;
 import com.diemyolo.blog_api.entity.Enumberable.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignUpRequest {
     @NotBlank(message = "The email is required.")
-    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "The email is invalid.")
+    @Pattern(
+            regexp = "^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+            message = "The email is invalid."
+    )
     @Schema(example = "example@gmail.com")
     private String email;
 

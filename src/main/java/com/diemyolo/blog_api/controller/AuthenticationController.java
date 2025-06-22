@@ -2,7 +2,6 @@ package com.diemyolo.blog_api.controller;
 
 import java.io.UnsupportedEncodingException;
 
-import com.diemyolo.blog_api.exception.CustomException;
 import com.diemyolo.blog_api.model.request.authentication.SignInRequest;
 import com.diemyolo.blog_api.model.request.authentication.SignUpRequest;
 import com.diemyolo.blog_api.model.response.authentication.AuthenticationResponse;
