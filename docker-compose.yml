@@ -40,6 +40,8 @@ services:
     depends_on:
       - blog-db
       - redis
+    env_file:
+      - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_USERNAME: ${DB_USERNAME}
@@ -49,6 +51,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      SPRING_DATA_MONGODB_URI: ${MONGO_URI}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
