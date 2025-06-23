@@ -40,26 +40,22 @@ public class SecurityConfiguration {
                 .httpBasic(basic -> basic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/**",
                                 "/v2/api-docs",
-                                "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/swagger-resources",
                                 "/swagger-resources/**",
-                                "/configuration/ui",
-                                "/configuration/security",
+                                "/configuration/**",
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/swagger-ui.html",
-                                "/",                    // 👈 thêm dòng này
-                                "/favicon.ico")
-                        .permitAll()
-                        .anyRequest()
-                        .authenticated())
+                                "/favicon.ico",
+                                "/"
+                        ).permitAll()
+                        .requestMatchers("/**").permitAll() // 👈 thêm dòng này cuối cùng
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(
-                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
