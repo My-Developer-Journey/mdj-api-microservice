@@ -50,7 +50,9 @@ public class SecurityConfiguration {
                                 "/configuration/security",
                                 "/swagger-ui/**",
                                 "/webjars/**",
-                                "/swagger-ui.html")
+                                "/swagger-ui.html",
+                                "/",                    // 👈 thêm dòng này
+                                "/favicon.ico")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
