@@ -8,7 +8,6 @@ import com.diemyolo.blog_api.mongo.repository.FollowRepository;
 import com.diemyolo.blog_api.repository.UserRepository;
 import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.FollowService;
-import com.diemyolo.blog_api.service.JWTService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

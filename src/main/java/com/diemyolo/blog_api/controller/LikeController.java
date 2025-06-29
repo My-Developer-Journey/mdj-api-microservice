@@ -1,9 +1,7 @@
 package com.diemyolo.blog_api.controller;
 
 import com.diemyolo.blog_api.model.common.ApiResponse;
-import com.diemyolo.blog_api.model.response.follow.FollowResponse;
 import com.diemyolo.blog_api.model.response.like.LikeResponse;
-import com.diemyolo.blog_api.service.FollowService;
 import com.diemyolo.blog_api.service.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

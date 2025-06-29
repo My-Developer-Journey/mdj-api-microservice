@@ -2,10 +2,7 @@ package com.diemyolo.blog_api.controller;
 
 import com.diemyolo.blog_api.model.common.ApiResponse;
 import com.diemyolo.blog_api.model.response.comment.CommentResponse;
-import com.diemyolo.blog_api.model.response.like.LikeResponse;
-import com.diemyolo.blog_api.mongo.entity.Comment;
 import com.diemyolo.blog_api.service.CommentService;
-import com.diemyolo.blog_api.service.LikeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
