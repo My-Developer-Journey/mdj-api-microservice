@@ -18,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,5 +161,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return errors;
+    }
+
+    @Override
+    public User findUserByJwt() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null
+                    && authentication.getPrincipal() != null
+                    && authentication.getPrincipal() instanceof User) {
+                UserDetails userDetails = (User) authentication.getPrincipal();
+                String email = userDetails.getUsername();
+                User user = userRepository.findByEmail(email)
+                        .orElseThrow(() -> new CustomException("User not found!", HttpStatus.NOT_FOUND));
+                ;
+                return user;
+            } else {
+                throw new CustomException("Cannot receive JWT token!", HttpStatus.BAD_REQUEST);
+            }
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException("Cannot get user info from JWT token!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

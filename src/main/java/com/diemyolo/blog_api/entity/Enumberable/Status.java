@@ -6,6 +6,4 @@ import lombok.RequiredArgsConstructor;
 public enum Status {
     ACTIVE,
     INACTIVE,
-    SUSPENDED,
-    BANNED
 }
