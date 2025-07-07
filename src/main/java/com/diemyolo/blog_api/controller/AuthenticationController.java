@@ -10,10 +10,7 @@ import com.diemyolo.blog_api.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.diemyolo.blog_api.model.common.ApiResponse;
 
 import jakarta.mail.MessagingException;
@@ -29,8 +26,7 @@ public class AuthenticationController {
     public ResponseEntity<ApiResponse<UserResponse>> register(@Valid @RequestBody SignUpRequest request) {
         UserResponse user = authenticationService.signUp(request);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.created(user));
+                .ok(ApiResponse.success("Register successfully. Please open your email to verify your account!", user));
     }
 
     @PostMapping("sign-in")
@@ -39,5 +35,11 @@ public class AuthenticationController {
         AuthenticationResponse response = authenticationService.signIn(request);
         return ResponseEntity
                 .ok(ApiResponse.success("Login successful", response));
+    }
+
+    @GetMapping("verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam String email, @RequestParam String code) {
+        authenticationService.verifyEmail(email, code);
+        return ResponseEntity.ok("Verify successfully, please login to your account.");
     }
 }

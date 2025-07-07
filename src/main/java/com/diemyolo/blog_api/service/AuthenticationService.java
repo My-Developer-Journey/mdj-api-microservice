@@ -12,4 +12,6 @@ public interface AuthenticationService {
     AuthenticationResponse signIn(SignInRequest request);
 
     User findUserByJwt();
+
+    void verifyEmail(String email, String code);
 }

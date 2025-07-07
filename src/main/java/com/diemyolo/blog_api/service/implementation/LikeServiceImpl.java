@@ -6,7 +6,6 @@ import com.diemyolo.blog_api.model.response.like.LikeResponse;
 import com.diemyolo.blog_api.mongo.entity.Like;
 import com.diemyolo.blog_api.mongo.repository.LikeRepository;
 import com.diemyolo.blog_api.repository.PostRepository;
-import com.diemyolo.blog_api.repository.UserRepository;
 import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.LikeService;
 import org.modelmapper.ModelMapper;

@@ -13,6 +13,7 @@ import com.diemyolo.blog_api.service.JWTService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +46,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private JWTService jwtService;
 
     @Autowired
+    private MailServiceImpl mailServiceImpl;
+
+    @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -73,11 +81,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setStatus(Status.ACTIVE);
-            user.setVerificationCode(randomCode);
+            redisTemplate.opsForValue().set(
+                    "verify:" + user.getEmail(),
+                    randomCode,
+                    Duration.ofMinutes(10)
+            );
 
-            var response = modelMapper.map(userRepository.save(user), UserResponse.class);
+            mailServiceImpl.sendVerificationEmail(user.getEmail(), randomCode);
 
-            return response;
+            return modelMapper.map(userRepository.save(user), UserResponse.class);
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
@@ -179,6 +191,35 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             } else {
                 throw new CustomException("Cannot receive JWT token!", HttpStatus.BAD_REQUEST);
             }
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException("Cannot get user info from JWT token!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void verifyEmail(String email, String code) {
+        try{
+            String redisKey = "verify:" + email;
+            String savedCode = redisTemplate.opsForValue().get(redisKey);
+
+            if (savedCode == null) {
+                throw new CustomException("Verification code not existed or expired!", HttpStatus.BAD_REQUEST);
+            }
+
+            if (!savedCode.equals(code)) {
+                throw new CustomException("Verification code not valid!", HttpStatus.BAD_REQUEST);
+            }
+
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException("User not found!", HttpStatus.NOT_FOUND));
+
+            user.setEnabled(true);
+            userRepository.save(user);
+
+            redisTemplate.delete(redisKey);
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
