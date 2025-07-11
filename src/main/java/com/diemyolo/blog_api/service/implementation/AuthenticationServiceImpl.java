@@ -5,7 +5,6 @@ import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.exception.CustomException;
 import com.diemyolo.blog_api.model.request.authentication.SignInRequest;
 import com.diemyolo.blog_api.model.request.authentication.SignUpRequest;
-import com.diemyolo.blog_api.model.response.authentication.AuthenticationResponse;
 import com.diemyolo.blog_api.model.response.user.UserResponse;
 import com.diemyolo.blog_api.repository.UserRepository;
 import com.diemyolo.blog_api.service.AuthenticationService;
@@ -27,9 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,7 +95,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse signIn(SignInRequest request) {
+    public String signIn(SignInRequest request) {
         try {
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new BadCredentialsException("Invalid email or password."));
@@ -108,26 +105,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             request.getEmail(),
                             request.getPassword()));
 
-            // Check if the user account is enabled
             if (!user.isEnabled()) {
                 throw new DisabledException("This account is not activated. Please verify your email.");
             }
 
             if (user.getStatus() != Status.INACTIVE) {
-                var token = jwtService.generateToken(user);
-                return AuthenticationResponse.builder()
-                        .token(token)
-                        .build();
+                return jwtService.generateToken(user);
             } else {
                 throw new CustomException(
                         "This account is blocked. Please contact the administrator for more information.",
                         HttpStatus.BAD_REQUEST);
             }
+
         } catch (BadCredentialsException e) {
             throw new CustomException("Invalid email or password.", HttpStatus.UNAUTHORIZED);
         } catch (DisabledException e) {
-            // Send verification email if the account is disabled
-            // userService.sendVerificationEmail(user);
             throw new CustomException(
                     "This account is not activated. Please verify your email.",
                     HttpStatus.BAD_REQUEST);
@@ -135,6 +127,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 
     private Map<String, String> validateSignUpRequest(SignUpRequest request) {
         Map<String, String> errors = new HashMap<>();
