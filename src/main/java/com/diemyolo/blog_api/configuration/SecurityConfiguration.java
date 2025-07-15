@@ -21,7 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration {
     private static final List<String> ALLOWED_METHODS = List.of(
             "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD");
-    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:8080");
+    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:3000");
     private static final List<String> ALLOWED_HEADERS = List.of("Authorization", "Content-Type");
     private final AuthenticationProvider authenticationProvider;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
