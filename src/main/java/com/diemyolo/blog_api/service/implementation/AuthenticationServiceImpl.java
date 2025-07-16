@@ -106,7 +106,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             request.getPassword()));
 
             if (!user.isEnabled()) {
-                throw new DisabledException("This account is not activated. Please verify your email.");
+                String randomCode = RandomString.make(64);
+                redisTemplate.opsForValue().set(
+                        "verify:" + user.getEmail(),
+                        randomCode,
+                        Duration.ofMinutes(10)
+                );
+                mailServiceImpl.sendVerificationEmail(user.getEmail(), randomCode);
+
+                throw new CustomException(
+                        "Your account is not verified. A new verification email has been sent.",
+                        HttpStatus.BAD_REQUEST);
             }
 
             if (user.getStatus() != Status.INACTIVE) {
@@ -121,7 +131,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new CustomException("Invalid email or password.", HttpStatus.UNAUTHORIZED);
         } catch (DisabledException e) {
             throw new CustomException(
-                    "This account is not activated. Please verify your email.",
+                    e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
