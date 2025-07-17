@@ -35,7 +35,8 @@ services:
       - blog-network
 
   blog-api:
-    image: diemyolo/mdj-api:latest
+    build:
+      context: .
     container_name: blog-api
     depends_on:
       - blog-db
@@ -59,6 +60,7 @@ services:
       - "8080:8080"
     networks:
       - blog-network
+    entrypoint: ["./wait-for-it.sh", "redis", "6379", "--", "java", "-jar", "blog-api.jar"]
 
 volumes:
   pgdata:
