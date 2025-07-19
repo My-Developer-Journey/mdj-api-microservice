@@ -100,10 +100,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             User user = userRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new BadCredentialsException("Invalid email or password."));
 
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()));
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new CustomException("Invalid email or password.", HttpStatus.UNAUTHORIZED);
+            }
 
             if (!user.isEnabled()) {
                 String randomCode = RandomString.make(64);
@@ -119,24 +118,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         HttpStatus.BAD_REQUEST);
             }
 
-            if (user.getStatus() != Status.INACTIVE) {
-                return jwtService.generateToken(user);
-            } else {
+            if (user.getStatus() == Status.INACTIVE) {
                 throw new CustomException(
-                        "This account is blocked. Please contact the administrator for more information.",
+                        "This account is blocked. Please contact the administrator.",
                         HttpStatus.BAD_REQUEST);
             }
 
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+
+            return jwtService.generateToken(user);
+
         } catch (BadCredentialsException e) {
             throw new CustomException("Invalid email or password.", HttpStatus.UNAUTHORIZED);
-        } catch (DisabledException e) {
-            throw new CustomException(
-                    e.getMessage(),
-                    HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
+
 
 
     private Map<String, String> validateSignUpRequest(SignUpRequest request) {
