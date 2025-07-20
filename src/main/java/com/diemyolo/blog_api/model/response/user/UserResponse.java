@@ -15,7 +15,7 @@ import org.springframework.lang.Nullable;
 @Builder
 public class UserResponse {
     private String email;
-    private String userName;
+    private String displayName;
     private String phoneNumber;
     private @Nullable String avatar;
     private @Nullable String bio;

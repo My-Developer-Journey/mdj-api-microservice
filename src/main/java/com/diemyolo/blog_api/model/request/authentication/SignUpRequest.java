@@ -28,8 +28,8 @@ public class SignUpRequest {
     @NotBlank(message = "The confirmed password is required.")
     private String confirmedPassword;
 
-    @NotBlank(message = "The username is required.")
-    private String userName;
+    @NotBlank(message = "The display name is required.")
+    private String displayName;
 
     @NotBlank(message = "The phone is required.")
     private String phoneNumber;

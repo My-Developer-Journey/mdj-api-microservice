@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
                 throw new CustomException("Invalid phone number.", HttpStatus.BAD_REQUEST);
             }
 
-            currentUser.setUserName(request.getUserName());
+            currentUser.setDisplayName(request.getDisplayName());
             currentUser.setAvatar(request.getAvatar());
             currentUser.setBio(request.getBio());
             currentUser.setFacebookUrl(request.getFacebookUrl());

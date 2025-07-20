@@ -1,5 +1,6 @@
 package com.diemyolo.blog_api.service.implementation;
 
+import com.diemyolo.blog_api.entity.Enumberable.Provider;
 import com.diemyolo.blog_api.entity.Enumberable.Status;
 import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.exception.CustomException;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,6 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             User user = modelMapper.map(request, User.class);
 
+            user.setProvider(Provider.MDJ);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setStatus(Status.ACTIVE);
             redisTemplate.opsForValue().set(
@@ -105,13 +108,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
 
             if (!user.isEnabled()) {
+                String email = user.getEmail();
+                String verifyAttemptKey = "verify_attempts:" + email;
+
+                Integer attempts = Optional.ofNullable(redisTemplate.opsForValue().get(verifyAttemptKey))
+                        .map(Integer::valueOf)
+                        .orElse(0);
+
+                if (attempts >= 5) {
+                    throw new CustomException(
+                            "You have exceeded the number of verification attempts. Please contact support.",
+                            HttpStatus.TOO_MANY_REQUESTS);
+                }
+
                 String randomCode = RandomString.make(64);
-                redisTemplate.opsForValue().set(
-                        "verify:" + user.getEmail(),
-                        randomCode,
-                        Duration.ofMinutes(10)
-                );
-                mailServiceImpl.sendVerificationEmail(user.getEmail(), randomCode);
+                redisTemplate.opsForValue().set("verify:" + email, randomCode, Duration.ofMinutes(10));
+
+                mailServiceImpl.sendVerificationEmail(email, randomCode);
+                redisTemplate.opsForValue().increment(verifyAttemptKey);
+                redisTemplate.expire(verifyAttemptKey, Duration.ofHours(24));
 
                 throw new CustomException(
                         "Your account is not verified. A new verification email has been sent.",
