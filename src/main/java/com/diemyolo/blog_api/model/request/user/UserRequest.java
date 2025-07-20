@@ -20,7 +20,7 @@ public class UserRequest {
     private String email;
 
     @NotBlank(message = "The username is required.")
-    private String userName;
+    private String displayName;
 
     @NotBlank(message = "The phone is required.")
     private String phoneNumber;
