@@ -42,7 +42,7 @@ services:
       - blog-db
       - redis
     env_file:
-      - .env
+      - .env.prod
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_USERNAME: ${DB_USERNAME}

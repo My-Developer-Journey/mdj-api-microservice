@@ -33,4 +33,7 @@ build/
 .vscode/
 
 # Ignore environment variable
-.env
+.env.dev
+.env.prod
+.env.*
+!.env.example
