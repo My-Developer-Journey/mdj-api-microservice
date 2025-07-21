@@ -178,6 +178,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>blog-api</finalName>
 	</build>
 
 </project>
