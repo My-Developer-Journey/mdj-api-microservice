@@ -4,5 +4,7 @@ target
 *.iml
 *.log
 Dockerfile
-docker-compose.yml
-.env
+docker-compose.dev.yml
+docker-compose.prod.yml
+.env.dev
+.env.prod

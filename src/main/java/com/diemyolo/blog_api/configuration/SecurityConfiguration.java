@@ -2,6 +2,7 @@ package com.diemyolo.blog_api.configuration;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,15 +20,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
-    private static final List<String> ALLOWED_METHODS = List.of(
+    private final List<String> ALLOWED_METHODS = List.of(
             "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD");
-    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:3000");
-    private static final List<String> ALLOWED_HEADERS = List.of("Authorization", "Content-Type");
+    private final List<String> ALLOWED_HEADERS = List.of("Authorization", "Content-Type");
+    private final List<String> ALLOWED_ORIGINS;
+
     private final AuthenticationProvider authenticationProvider;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfiguration(AuthenticationProvider authenticationProvider,
-                                 JWTAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfiguration(
+            @Value("${app.frontend.origin}") String frontendOrigin,
+            AuthenticationProvider authenticationProvider,
+            JWTAuthenticationFilter jwtAuthenticationFilter) {
+        this.ALLOWED_ORIGINS = List.of(frontendOrigin);
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
