@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -42,6 +43,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("JWT Filter activated: " + request.getRequestURI());
         String jwt = null;
 
+        // Lấy JWT từ cookie
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
                 if ("accessToken".equals(cookie.getName())) {
@@ -51,33 +53,33 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        if (jwt == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
-            final String userEmail = jwtService.extractUsername(jwt);
+            if (jwt != null) {
+                final String userEmail = jwtService.extractUsername(jwt);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    try {
+                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            if (userEmail != null && authentication == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                        if (jwtService.isTokenValid(jwt, userDetails)) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities());
 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities());
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                        }
+                    } catch (UsernameNotFoundException e) {
+                        System.out.println("⚠️ JWT not found: " + userEmail);
+                    }
                 }
             }
-
-            filterChain.doFilter(request, response);
         } catch (Exception exception) {
+            System.out.println("⚠️ JWT error: " + exception.getMessage());
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
+
+        filterChain.doFilter(request, response);
     }
 }
