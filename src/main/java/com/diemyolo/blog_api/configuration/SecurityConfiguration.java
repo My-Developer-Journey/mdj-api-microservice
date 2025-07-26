@@ -52,7 +52,10 @@ public class SecurityConfiguration {
                                 "/webjars/**",
                                 "/swagger-ui.html",
                                 "/favicon.ico",
-                                "/v2/api-docs"
+                                "/v2/api-docs",
+                                "/api/authentications/sign-in",
+                                "/api/authentications/sign-up",
+                                "/"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
