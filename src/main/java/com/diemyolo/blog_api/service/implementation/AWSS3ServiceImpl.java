@@ -12,9 +12,12 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -31,13 +34,21 @@ public class AWSS3ServiceImpl implements AWSS3Service {
         try {
             String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
+            // Tự xác định MIME type từ tên file
+            String mimeType = Files.probeContentType(Paths.get(file.getOriginalFilename()));
+
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(uniqueFileName)
-                    .contentType(file.getContentType())
+                    .contentType(mimeType)
                     .build();
 
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
             return "https://" + bucketName + ".s3.amazonaws.com/" + uniqueFileName;
         } catch (CustomException e) {

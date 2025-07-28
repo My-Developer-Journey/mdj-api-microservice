@@ -69,7 +69,6 @@ public class UserServiceImpl implements UserService {
             }
 
             currentUser.setDisplayName(request.getDisplayName());
-            currentUser.setAvatar(request.getAvatar());
             currentUser.setBio(request.getBio());
             currentUser.setFacebookUrl(request.getFacebookUrl());
             currentUser.setGithubUrl(request.getGithubUrl());

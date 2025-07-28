@@ -24,7 +24,6 @@ public class UserRequest {
 
     @NotBlank(message = "The phone is required.")
     private String phoneNumber;
-    private @Nullable String avatar;
 
     private @Nullable String bio;
 

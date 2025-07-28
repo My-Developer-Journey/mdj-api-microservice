@@ -18,6 +18,7 @@ public class UserResponse {
     private String displayName;
     private String phoneNumber;
     private @Nullable String avatar;
+    private @Nullable String avatarS3Key;
     private @Nullable String bio;
     private @Nullable String facebookUrl;
     private @Nullable String githubUrl;
