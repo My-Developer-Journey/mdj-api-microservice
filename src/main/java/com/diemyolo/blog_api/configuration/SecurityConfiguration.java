@@ -53,9 +53,16 @@ public class SecurityConfiguration {
                                 "/swagger-ui.html",
                                 "/favicon.ico",
                                 "/v2/api-docs",
+                                "/"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/api/authentications/sign-in",
                                 "/api/authentications/sign-up",
-                                "/"
+                                "/api/authentications/verify"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/awss3/upload",
+                                "/api/awss3/test"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
