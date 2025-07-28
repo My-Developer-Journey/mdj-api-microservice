@@ -54,7 +54,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(ApiResponse.success("Login successful", null));
     }
 
-    @GetMapping("verify")
+    @GetMapping("/verify")
     public ResponseEntity<?> verifyEmail(@RequestParam String email, @RequestParam String code) {
         authenticationService.verifyEmail(email, code);
         return ResponseEntity.ok("Verify successfully, please login to your account.");
