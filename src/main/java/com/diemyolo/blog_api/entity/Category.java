@@ -3,6 +3,7 @@ package com.diemyolo.blog_api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,6 +33,7 @@ public class Category extends BaseEntity{
     @Column(name = "seo_keywords")
     private String seoKeywords;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post> posts;
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Post> posts = new ArrayList<>();
 }
