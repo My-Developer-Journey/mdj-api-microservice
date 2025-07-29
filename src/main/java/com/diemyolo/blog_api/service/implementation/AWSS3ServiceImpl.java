@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,13 +31,10 @@ public class AWSS3ServiceImpl implements AWSS3Service {
 
 
     @Override
-    public String uploadFile(MultipartFile file){
+    public Map<String, String> uploadFile(MultipartFile file){
         try {
             String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-
-            // Tự xác định MIME type từ tên file
             String mimeType = Files.probeContentType(Paths.get(file.getOriginalFilename()));
-
             if (mimeType == null) {
                 mimeType = "application/octet-stream";
             }
@@ -50,13 +48,18 @@ public class AWSS3ServiceImpl implements AWSS3Service {
             s3Client.putObject(putObjectRequest,
                     RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return "https://" + bucketName + ".s3.amazonaws.com/" + uniqueFileName;
+            String url = "https://" + bucketName + ".s3.amazonaws.com/" + uniqueFileName;
+            return Map.of(
+                    "url", url,
+                    "key", uniqueFileName
+            );
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
 
     public byte[] downloadFile(String key) {
         ResponseBytes<GetObjectResponse> objectAsBytes = s3Client.getObjectAsBytes(GetObjectRequest.builder()

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -54,5 +55,13 @@ public class UserController {
 
         Page<UserResponse> users = userService.getAllUsers(page, size, sortBy, sortDir);
         return ResponseEntity.ok(ApiResponse.success("Get all users successfully", users));
+    }
+
+    @PutMapping("profile/avatar")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("email") String email) {
+        UserResponse user = userService.updateUserAvatar(file, email);
+        return ResponseEntity.ok(
+                ApiResponse.success("User avatar updated successfully", user)
+        );
     }
 }

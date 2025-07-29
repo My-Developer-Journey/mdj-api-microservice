@@ -9,6 +9,7 @@ import com.diemyolo.blog_api.model.response.like.LikeResponse;
 import com.diemyolo.blog_api.model.response.user.UserResponse;
 import com.diemyolo.blog_api.mongo.entity.Like;
 import com.diemyolo.blog_api.repository.UserRepository;
+import com.diemyolo.blog_api.service.AWSS3Service;
 import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -20,8 +21,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private AWSS3Service awsS3Service;
 
     public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
@@ -126,6 +132,30 @@ public class UserServiceImpl implements UserService {
             Page<User> usersPage = userRepository.findAll(pageable);
 
             return usersPage.map(user -> modelMapper.map(user, UserResponse.class));
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public UserResponse updateUserAvatar(MultipartFile file, String userEmail){
+        try{
+            User currentUser = authenticationService.findUserByJwt();
+
+            if (!currentUser.getEmail().equals(userEmail)) {
+                throw new CustomException("You are not authorized to update this user.", HttpStatus.FORBIDDEN);
+            }
+
+            Map<String, String> result = awsS3Service.uploadFile(file);
+            String url = result.get("url");
+            String key = result.get("key");
+
+            currentUser.setAvatar(url);
+            currentUser.setAvatarS3Key(key);
+
+            return modelMapper.map(userRepository.save(currentUser), UserResponse.class);
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
