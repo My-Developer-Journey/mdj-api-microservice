@@ -110,6 +110,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (!user.isEnabled()) {
                 String email = user.getEmail();
                 String verifyAttemptKey = "verify_attempts:" + email;
+                String verifyKey = "verify:" + email;
+
+                redisTemplate.delete(verifyKey);
 
                 Integer attempts = Optional.ofNullable(redisTemplate.opsForValue().get(verifyAttemptKey))
                         .map(Integer::valueOf)

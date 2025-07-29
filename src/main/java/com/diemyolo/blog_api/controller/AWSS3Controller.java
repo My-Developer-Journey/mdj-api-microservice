@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @RequestMapping("/api/awss3")
 @RestController
 public class AWSS3Controller {
@@ -14,9 +16,9 @@ public class AWSS3Controller {
     private AWSS3Service awsS3Service;
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<String>> uploadFile(@RequestParam("file") MultipartFile file) {
-        String url = awsS3Service.uploadFile(file);
-        return ResponseEntity.ok(ApiResponse.success("File Uploaded Successfully", url));
+    public ResponseEntity<ApiResponse<Map<String, String>>> uploadFile(@RequestParam("file") MultipartFile file) {
+        Map<String, String> result = awsS3Service.uploadFile(file);
+        return ResponseEntity.ok(ApiResponse.success("File Uploaded Successfully", result));
     }
 
     @GetMapping("/test")
