@@ -64,6 +64,10 @@ public class SecurityConfiguration {
                                 "/api/awss3/upload",
                                 "/api/awss3/test"
                         ).permitAll()
+                        .requestMatchers(
+                                "/api/admin/**",
+                                "/api/categories/**"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,7 +1,6 @@
 package com.diemyolo.blog_api.controller;
 
 import com.diemyolo.blog_api.model.common.ApiResponse;
-import com.diemyolo.blog_api.model.request.authentication.SignUpRequest;
 import com.diemyolo.blog_api.model.request.user.UserRequest;
 import com.diemyolo.blog_api.model.response.user.UserResponse;
 import com.diemyolo.blog_api.service.UserService;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
