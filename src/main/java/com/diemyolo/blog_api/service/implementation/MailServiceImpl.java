@@ -2,12 +2,15 @@ package com.diemyolo.blog_api.service.implementation;
 
 import com.diemyolo.blog_api.exception.CustomException;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.io.UnsupportedEncodingException;
 
 @Service
 public class MailServiceImpl {
@@ -35,11 +38,12 @@ public class MailServiceImpl {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(content, true);
+            helper.setFrom(new InternetAddress("mydeveloperjourney2025@gmail.com", "My Developer Journey"));
 
             mailSender.send(message);
         } catch (CustomException e) {
             throw e;
-        } catch (MessagingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Failed to send verification email.", e);
         }
     }

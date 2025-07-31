@@ -1,5 +1,7 @@
 package com.diemyolo.blog_api.entity;
 
+import com.diemyolo.blog_api.entity.Enumberable.Gender;
+import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -51,9 +53,15 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
-    @Column(name = "published", nullable = false)
-    @Builder.Default
-    private boolean published = false;
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
+    private PostStatus postStatus;
+
+    @Column(name = "submitted_at")
+    private LocalDateTime submittedAt;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
