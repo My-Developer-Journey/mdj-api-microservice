@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Builder
 public class UserResponse {
     private UUID id;
+    private LocalDateTime createdDate;
     private String email;
     private String displayName;
     private String phoneNumber;
