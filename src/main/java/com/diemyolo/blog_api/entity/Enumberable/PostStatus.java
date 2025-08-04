@@ -2,8 +2,8 @@ package com.diemyolo.blog_api.entity.Enumberable;
 
 public enum PostStatus {
     DRAFT,
-    PENDING_REVIEW,
-    APPROVED,
+    SUBMITTED,
     REJECTED,
-    PUBLISHED
+    PUBLISHED,
+    REMOVED,
 }
