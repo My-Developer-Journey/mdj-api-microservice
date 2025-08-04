@@ -63,6 +63,9 @@ public class Post extends BaseEntity {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
+    @Column(name = "rejected_note")
+    private String rejectedNote;
+
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 

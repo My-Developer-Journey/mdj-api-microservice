@@ -1,11 +1,15 @@
 package com.diemyolo.blog_api.model.request.post;
 
+import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,5 +35,11 @@ public class PostRequest {
 
     private List<UUID> categoryIds;
 
-    private boolean published;
+    private PostStatus postStatus;
+
+    private LocalDateTime submittedAt;
+
+    private LocalDateTime rejectedAt;
+
+    private LocalDateTime publishedAt;
 }
