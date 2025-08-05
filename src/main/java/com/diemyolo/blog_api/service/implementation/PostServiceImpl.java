@@ -7,9 +7,7 @@ import com.diemyolo.blog_api.entity.Post;
 import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.exception.CustomException;
 import com.diemyolo.blog_api.model.request.post.PostRequest;
-import com.diemyolo.blog_api.model.response.post.PostCategoryResponse;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
-import com.diemyolo.blog_api.model.response.post.PostUserResponse;
 import com.diemyolo.blog_api.repository.CategoryRepository;
 import com.diemyolo.blog_api.repository.PostRepository;
 import com.diemyolo.blog_api.repository.UserRepository;
@@ -113,7 +111,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote) {
         try {
-            // Kiểm tra quyền admin nếu cần (tuỳ vào hệ thống bạn có phân quyền hay không)
+            // Kiểm tra quyền admin
             User currentUser = authenticationService.findUserByJwt();
             if (!currentUser.getRole().equals(Role.ADMIN)) {
                 throw new CustomException("You are not authorized to perform this action.", HttpStatus.FORBIDDEN);
@@ -213,6 +211,32 @@ public class PostServiceImpl implements PostService {
 
             return convertToResponse(post);
 
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public PostResponse removePost(UUID postId) {
+        try {
+            User currentUser = authenticationService.findUserByJwt();
+
+            // Tìm post
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new CustomException("Post not found", HttpStatus.NOT_FOUND));
+
+            if (!currentUser.getEmail().equals(post.getAuthor().getEmail())) {
+                throw new CustomException("You are not authorized to perform this action.", HttpStatus.FORBIDDEN);
+            }
+
+            // Cập nhật status
+            post.setPostStatus(PostStatus.REMOVED);
+
+            postRepository.save(post);
+
+            return convertToResponse(post);
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
