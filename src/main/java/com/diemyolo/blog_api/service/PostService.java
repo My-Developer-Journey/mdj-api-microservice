@@ -11,4 +11,5 @@ public interface PostService {
     PostResponse addPost(PostRequest request);
     PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote);
     PostResponse updatePost(UUID postId, PostRequest request);
+    PostResponse removePost(UUID postId);
 }
