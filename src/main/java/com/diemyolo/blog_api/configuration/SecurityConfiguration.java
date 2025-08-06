@@ -2,6 +2,7 @@ package com.diemyolo.blog_api.configuration;
 
 import java.util.List;
 
+import com.diemyolo.blog_api.service.implementation.CustomOAuth2UserServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,14 +28,18 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
     private final JWTAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomOAuth2UserServiceImpl customOAuth2UserServiceImpl;
 
     public SecurityConfiguration(
             @Value("${app.frontend.origin}") String frontendOrigin,
             AuthenticationProvider authenticationProvider,
-            JWTAuthenticationFilter jwtAuthenticationFilter) {
+            JWTAuthenticationFilter jwtAuthenticationFilter, OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, CustomOAuth2UserServiceImpl customOAuth2UserServiceImpl) {
         this.ALLOWED_ORIGINS = List.of(frontendOrigin);
         this.authenticationProvider = authenticationProvider;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.customOAuth2UserServiceImpl = customOAuth2UserServiceImpl;
     }
 
     @Bean
@@ -58,7 +63,8 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/authentications/sign-in",
                                 "/api/authentications/sign-up",
-                                "/api/authentications/verify"
+                                "/api/authentications/verify",
+                                "/oauth2/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/awss3/upload",
@@ -69,6 +75,11 @@ public class SecurityConfiguration {
                                 "/api/categories/**"
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authz -> authz.baseUri("/oauth2/authorize"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserServiceImpl))
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
