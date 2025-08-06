@@ -8,7 +8,6 @@ import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.repository.UserRepository;
 import com.diemyolo.blog_api.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
