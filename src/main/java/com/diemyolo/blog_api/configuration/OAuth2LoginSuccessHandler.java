@@ -19,6 +19,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${app.frontend.origin}")
+    private String appFrontendOrigin;
+
     private final JWTService jwtService;
 
     public OAuth2LoginSuccessHandler(JWTService jwtService) {
@@ -45,6 +48,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addCookie(cookie);
 
         // Chuyển hướng về FE
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect(appFrontendOrigin);
     }
 }
