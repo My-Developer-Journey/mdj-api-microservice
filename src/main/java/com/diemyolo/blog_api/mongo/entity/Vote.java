@@ -11,11 +11,13 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "Like")
-public class Like {
+@Document(collection = "vote")
+public class Vote {
     @Id
     private UUID id;
     private UUID postId;
     private UUID userId;
+    private boolean isUpvote;
+    private boolean isDownvote;
     private LocalDateTime createdAt;
 }

@@ -53,6 +53,16 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @OrderColumn(name = "tag_order")
+    @JoinTable(
+            name = "post_tags",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @Builder.Default
+    private List<Tag> tags = new ArrayList<>();
+
     @Enumerated(EnumType.ORDINAL)
     @Column(nullable = false)
     private PostStatus postStatus;
@@ -68,6 +78,9 @@ public class Post extends BaseEntity {
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
+
+    @Column(name = "scheduled_publish_date")
+    private LocalDateTime scheduledPublishDate;
 
     @Column(name = "view_count")
     @Builder.Default
