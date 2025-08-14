@@ -2,8 +2,14 @@ package com.diemyolo.blog_api.entity;
 
 import com.diemyolo.blog_api.entity.Enumberable.Gender;
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +31,11 @@ public class Post extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "contentJson", columnDefinition = "jsonb")
+    private JsonNode contentJson;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
