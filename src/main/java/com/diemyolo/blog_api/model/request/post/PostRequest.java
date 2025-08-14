@@ -20,26 +20,18 @@ public class PostRequest {
     @NotBlank(message = "The title is required.")
     private String title;
 
-    @NotBlank(message = "The slug is required.")
-    private String slug;
-
     @NotBlank(message = "The content is required.")
     private String content;
-
-    private String seoTitle;
-    private String seoDescription;
-    private String seoKeywords;
 
     @NotNull(message = "Author ID is required.")
     private UUID authorId;
 
     private List<UUID> categoryIds;
 
+    private List<UUID> tagIds;
+
     private PostStatus postStatus;
 
-    private LocalDateTime submittedAt;
-
-    private LocalDateTime rejectedAt;
-
-    private LocalDateTime publishedAt;
+    @NotNull(message = "Publish Date is required.")
+    private LocalDateTime scheduledPublishDate;
 }

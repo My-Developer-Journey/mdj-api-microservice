@@ -29,6 +29,9 @@ public class Post extends BaseEntity {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    @Column(name = "thumbnail_s3_key")
+    private String thumbnailS3Key;
+
     // SEO metadata
     @Column(name = "seo_title")
     private String seoTitle;
@@ -70,14 +73,14 @@ public class Post extends BaseEntity {
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
+
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
     @Column(name = "rejected_note")
     private String rejectedNote;
-
-    @Column(name = "published_at")
-    private LocalDateTime publishedAt;
 
     @Column(name = "scheduled_publish_date")
     private LocalDateTime scheduledPublishDate;
