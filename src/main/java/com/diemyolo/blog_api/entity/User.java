@@ -35,7 +35,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "avatar", nullable = true)
     private String avatar;
 
-    @Column(name = "avatarS3Key", nullable = true)
+    @Column(name = "avatar_s3_key", nullable = true)
     private String avatarS3Key;
 
     @Column(name = "verification_code", length = 64)

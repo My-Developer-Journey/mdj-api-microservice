@@ -4,6 +4,7 @@ import com.diemyolo.blog_api.entity.Post;
 import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.model.response.post.PostCategoryResponse;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
+import com.diemyolo.blog_api.model.response.post.PostTagResponse;
 import com.diemyolo.blog_api.model.response.post.PostUserResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.stream.Collectors;
 
 @Configuration
-public class ModalMapperConfiguration {
+public class ModelMapperConfiguration {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper mapper = new ModelMapper();
@@ -24,6 +25,8 @@ public class ModalMapperConfiguration {
             m.map(Post::getId, PostResponse::setId);
             m.map(Post::getTitle, PostResponse::setTitle);
             m.map(Post::getSlug, PostResponse::setSlug);
+            m.map(Post::getThumbnailUrl, PostResponse::setThumbnailUrl);
+            m.map(Post::getThumbnailS3Key, PostResponse::setThumbnailS3Key);
             m.map(Post::getContent, PostResponse::setContent);
             m.map(Post::getSeoTitle, PostResponse::setSeoTitle);
             m.map(Post::getSeoDescription, PostResponse::setSeoDescription);
@@ -32,7 +35,7 @@ public class ModalMapperConfiguration {
             m.map(Post::getSubmittedAt, PostResponse::setSubmittedAt);
             m.map(Post::getRejectedAt, PostResponse::setRejectedAt);
             m.map(Post::getRejectedNote, PostResponse::setRejectedNote);
-            m.map(Post::getPublishedAt, PostResponse::setPublishedAt);
+            m.map(Post::getScheduledPublishDate, PostResponse::setScheduledPublishDate);
             m.map(Post::getViewCount, PostResponse::setViewCount);
         });
 
@@ -57,6 +60,15 @@ public class ModalMapperConfiguration {
                         PostCategoryResponse.builder()
                                 .id(cat.getId())
                                 .name(cat.getName())
+                                .build()
+                ).collect(Collectors.toList()));
+            }
+
+            if (source.getTags() != null) {
+                destination.setTags(source.getTags().stream().map(tag ->
+                        PostTagResponse.builder()
+                                .id(tag.getId())
+                                .name(tag.getName())
                                 .build()
                 ).collect(Collectors.toList()));
             }

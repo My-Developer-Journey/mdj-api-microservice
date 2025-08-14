@@ -4,32 +4,37 @@ import com.diemyolo.blog_api.entity.Category;
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
 import com.diemyolo.blog_api.entity.Enumberable.Role;
 import com.diemyolo.blog_api.entity.Post;
+import com.diemyolo.blog_api.entity.Tag;
 import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.exception.CustomException;
 import com.diemyolo.blog_api.model.request.post.PostRequest;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
 import com.diemyolo.blog_api.repository.CategoryRepository;
 import com.diemyolo.blog_api.repository.PostRepository;
+import com.diemyolo.blog_api.repository.TagRepository;
 import com.diemyolo.blog_api.repository.UserRepository;
+import com.diemyolo.blog_api.service.AWSS3Service;
 import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 
 @Service
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -37,69 +42,69 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
+    @Autowired
+    private AWSS3Service awsS3Service;
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CategoryRepository categoryRepository, TagRepository tagRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.tagRepository = tagRepository;
     }
 
     @Transactional
-    public PostResponse addPost(PostRequest request) {
+    @Override
+    public PostResponse addPost(PostRequest request, MultipartFile thumbnailFile) {
         try {
-            // Kiểm tra slug đã tồn tại chưa
-            if (postRepository.existsBySlug(request.getSlug())) {
-                throw new CustomException("Slug already exists", HttpStatus.BAD_REQUEST);
-            }
-
-            // Kiểm tra title đã tồn tại chưa
+            // Kiểm tra title đã tồn tại
             if (postRepository.existsByTitle(request.getTitle())) {
                 throw new CustomException("Title already exists", HttpStatus.BAD_REQUEST);
             }
 
-            // Tìm author
+            // Tìm author và check quyền
             User author = userRepository.findById(request.getAuthorId())
                     .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-
             User currentUser = authenticationService.findUserByJwt();
             if (!currentUser.getEmail().equals(author.getEmail())) {
                 throw new CustomException("You are not authorized to update this user.", HttpStatus.FORBIDDEN);
             }
 
-            // Kiểm tra categoryIds hợp lệ
-            List<UUID> categoryIds = request.getCategoryIds();
-            List<Category> categories = new ArrayList<>();
+            // Validate categories
+            List<Category> categories = validateIds(request.getCategoryIds(), categoryRepository, Category::getId, "Invalid category IDs");
 
-            if (categoryIds != null && !categoryIds.isEmpty()) {
-                categories = categoryRepository.findAllById(categoryIds);
+            // Validate tags
+            List<Tag> tags = validateIds(request.getTagIds(), tagRepository, Tag::getId, "Invalid tag IDs");
 
-                if (categories.size() != categoryIds.size()) {
-                    List<UUID> foundIds = categories.stream()
-                            .map(Category::getId)
-                            .toList();
-                    List<UUID> missingIds = categoryIds.stream()
-                            .filter(id -> !foundIds.contains(id))
-                            .toList();
+            // Generate slug & SEO
+            String slug = generateSlug(request.getTitle());
+            String seoTitle = generateSeoTitle(request.getTitle());
+            String seoDescription = generateSeoDescription(request.getContent());
+            String seoKeywords = generateSeoKeywords(request.getTitle(), tags);
 
-                    throw new CustomException("Invalid category IDs: " + missingIds, HttpStatus.BAD_REQUEST);
-                }
-            }
+            //Add thumbnail
+            Map<String, String> result = awsS3Service.uploadFile(thumbnailFile);
+            String url = result.get("url");
+            String key = result.get("key");
 
             // Tạo entity Post
             Post post = Post.builder()
                     .title(request.getTitle())
-                    .slug(request.getSlug())
+                    .slug(slug)
+                    .thumbnailUrl(url)
+                    .thumbnailS3Key(key)
                     .content(request.getContent())
-                    .seoTitle(request.getSeoTitle())
-                    .seoDescription(request.getSeoDescription())
-                    .seoKeywords(request.getSeoKeywords())
+                    .seoTitle(seoTitle)
+                    .seoDescription(seoDescription)
+                    .seoKeywords(seoKeywords)
                     .author(author)
                     .categories(categories)
+                    .tags(tags)
                     .postStatus(request.getPostStatus())
                     .submittedAt(LocalDateTime.now())
+                    .scheduledPublishDate(request.getScheduledPublishDate())
                     .build();
 
             post = postRepository.save(post);
-
             return convertToResponse(post);
         } catch (CustomException e) {
             throw e;
@@ -109,6 +114,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Transactional
+    @Override
     public PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote) {
         try {
             // Kiểm tra quyền admin
@@ -125,24 +131,19 @@ public class PostServiceImpl implements PostService {
             post.setPostStatus(status);
 
             switch (status) {
-                case PUBLISHED -> {
-                    post.setPublishedAt(LocalDateTime.now());
-                    post.setRejectedAt(null);
-                    post.setRejectedNote(null);
-                }
                 case REJECTED -> {
                     post.setRejectedAt(LocalDateTime.now());
                     post.setRejectedNote(rejectedNote);
-                    post.setPublishedAt(null);
+                }
+                case ACCEPTED -> {
+                    post.setAcceptedAt(LocalDateTime.now());
                 }
                 case DRAFT -> {
                     post.setRejectedAt(null);
                     post.setRejectedNote(null);
-                    post.setPublishedAt(null);
                 }
                 case SUBMITTED -> {
                     post.setSubmittedAt(LocalDateTime.now());
-                    post.setPublishedAt(null);
                 }
             }
 
@@ -157,7 +158,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Transactional
-    public PostResponse updatePost(UUID postId, PostRequest request) {
+    @Override
+    public PostResponse updatePost(UUID postId, PostRequest request, MultipartFile thumbnailFile) {
         try {
             // Tìm post cần cập nhật
             Post post = postRepository.findById(postId)
@@ -171,40 +173,36 @@ public class PostServiceImpl implements PostService {
                 throw new CustomException("You are not authorized to update this post.", HttpStatus.FORBIDDEN);
             }
 
-            // Kiểm tra nếu slug hoặc title bị trùng (trừ chính nó)
-            if (!post.getSlug().equals(request.getSlug()) &&
-                    postRepository.existsBySlug(request.getSlug())) {
-                throw new CustomException("Slug already exists", HttpStatus.BAD_REQUEST);
-            }
-
             if (!post.getTitle().equals(request.getTitle()) &&
                     postRepository.existsByTitle(request.getTitle())) {
                 throw new CustomException("Title already exists", HttpStatus.BAD_REQUEST);
             }
 
+            //Add thumbnail
+            if(thumbnailFile != null && !thumbnailFile.isEmpty()){
+                Map<String, String> result = awsS3Service.uploadFile(thumbnailFile);
+                String url = result.get("url");
+                String key = result.get("key");
+                post.setThumbnailUrl(url);
+                post.setThumbnailS3Key(key);
+            }
+
             // Cập nhật các trường cơ bản
             post.setTitle(request.getTitle());
-            post.setSlug(request.getSlug());
             post.setContent(request.getContent());
-            post.setSeoTitle(request.getSeoTitle());
-            post.setSeoDescription(request.getSeoDescription());
-            post.setSeoKeywords(request.getSeoKeywords());
+            post.setUpdatedDate(LocalDateTime.now());
             post.setPostStatus(request.getPostStatus());
 
             // Cập nhật category nếu có
-            List<UUID> categoryIds = request.getCategoryIds();
-            if (categoryIds != null && !categoryIds.isEmpty()) {
-                List<Category> categories = categoryRepository.findAllById(categoryIds);
-
-                if (categories.size() != categoryIds.size()) {
-                    List<UUID> foundIds = categories.stream().map(Category::getId).toList();
-                    List<UUID> missingIds = categoryIds.stream()
-                            .filter(id -> !foundIds.contains(id))
-                            .toList();
-                    throw new CustomException("Invalid category IDs: " + missingIds, HttpStatus.BAD_REQUEST);
-                }
-
+            List<Category> categories = validateIds(request.getCategoryIds(), categoryRepository, Category::getId, "Invalid category IDs");
+            if(!categories.isEmpty()){
                 post.setCategories(categories);
+            }
+
+            // Cập nhật tags nếu có
+            List<Tag> tags = validateIds(request.getTagIds(), tagRepository, Tag::getId, "Invalid tag IDs");
+            if(!tags.isEmpty()){
+                post.setTags(tags);
             }
 
             postRepository.save(post);
@@ -219,6 +217,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Transactional
+    @Override
     public PostResponse removePost(UUID postId) {
         try {
             User currentUser = authenticationService.findUserByJwt();
@@ -244,7 +243,53 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    private <T> List<T> validateIds(List<UUID> ids, JpaRepository<T, UUID> repository, Function<T, UUID> getIdFunc, String errorMessage) {
+        try {
+            if (ids == null || ids.isEmpty()) return new ArrayList<>();
+
+            List<T> entities = repository.findAllById(ids);
+            if (entities.size() != ids.size()) {
+                List<UUID> foundIds = entities.stream().map(getIdFunc).toList();
+                List<UUID> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
+                throw new CustomException(errorMessage + ": " + missingIds, HttpStatus.BAD_REQUEST);
+            }
+            return entities;
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
     public PostResponse convertToResponse(Post post) {
         return modelMapper.map(post, PostResponse.class);
+    }
+
+    private String generateSlug(String title) {
+        return title.toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "") // bỏ ký tự đặc biệt
+                .replaceAll("\\s+", "-")         // thay khoảng trắng thành dấu gạch ngang
+                .replaceAll("-{2,}", "-")        // bỏ dấu gạch ngang thừa
+                .replaceAll("^-|-$", "");        // bỏ gạch ngang đầu/cuối
+    }
+
+    private String generateSeoTitle(String title) {
+        return title.length() > 60 ? title.substring(0, 60) : title;
+    }
+
+    private String generateSeoDescription(String content) {
+        String plainText = content.replaceAll("\\<.*?\\>", "");
+        return plainText.length() > 160 ? plainText.substring(0, 160) : plainText;
+    }
+
+    private String generateSeoKeywords(String title, List<Tag> tags) {
+        List<String> keywords = new ArrayList<>();
+        keywords.addAll(Arrays.asList(title.toLowerCase().split("\\s+")));
+        if (tags != null) {
+            keywords.addAll(tags.stream()
+                    .map(t -> t.getName().toLowerCase())
+                    .toList());
+        }
+        return String.join(", ", keywords);
     }
 }

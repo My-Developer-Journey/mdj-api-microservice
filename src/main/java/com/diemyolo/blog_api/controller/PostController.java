@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -20,9 +21,9 @@ public class PostController {
 
     @PostMapping()
     public ResponseEntity<ApiResponse<Object>> addPost(
-            @Valid @RequestBody PostRequest request
+            @Valid @RequestBody PostRequest request, @RequestParam("file") MultipartFile thumbnailFile
     ) {
-        PostResponse response = postService.addPost(request);
+        PostResponse response = postService.addPost(request, thumbnailFile);
 
         return ResponseEntity.ok(ApiResponse.success("Add post successfully, please wait for admin verification!", response));
     }
@@ -40,9 +41,9 @@ public class PostController {
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<Object>> updatePost(
             @PathVariable UUID postId,
-            @Valid @RequestBody PostRequest request
+            @Valid @RequestBody PostRequest request, @RequestParam(value = "file", required = false) MultipartFile thumbnailFile
     ) {
-        PostResponse response = postService.updatePost(postId, request);
+        PostResponse response = postService.updatePost(postId, request, thumbnailFile);
         return ResponseEntity.ok(ApiResponse.success("Post updated successfully", response));
     }
 
