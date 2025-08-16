@@ -1,6 +1,7 @@
 package com.diemyolo.blog_api.model.request.post;
 
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,9 @@ public class PostRequest {
 
     @NotBlank(message = "The content is required.")
     private String content;
+
+    @NotBlank(message = "The content is required.")
+    private JsonNode contentJson;
 
     @NotNull(message = "Author ID is required.")
     private UUID authorId;

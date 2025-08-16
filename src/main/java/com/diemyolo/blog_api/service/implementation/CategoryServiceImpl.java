@@ -8,18 +8,17 @@ import com.diemyolo.blog_api.repository.CategoryRepository;
 import com.diemyolo.blog_api.service.AWSS3Service;
 import com.diemyolo.blog_api.service.CategoryService;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private AWSS3Service awsS3Service;
-
     @Autowired
     private ModelMapper modelMapper;
 
@@ -75,6 +74,18 @@ public class CategoryServiceImpl implements CategoryService {
             Category updated = categoryRepository.save(category);
             return modelMapper.map(updated, CategoryResponse.class);
 
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<CategoryResponse> findAllCategories() {
+        try {
+            List<Category> categories = categoryRepository.findAll();
+            return modelMapper.map(categories, new TypeToken<List<CategoryResponse>>() {}.getType());
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {

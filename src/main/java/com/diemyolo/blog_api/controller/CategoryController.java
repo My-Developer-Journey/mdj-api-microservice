@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequestMapping("/api/categories")
@@ -29,5 +30,12 @@ public class CategoryController {
         CategoryResponse category = categoryService.updateCategory(id, request);
         return ResponseEntity
                 .ok(ApiResponse.success("Update category successfully!", category));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> findAllCategories() {
+        List<CategoryResponse> category = categoryService.findAllCategories();
+        return ResponseEntity
+                .ok(ApiResponse.success("Category list successfully fetched!", category));
     }
 }

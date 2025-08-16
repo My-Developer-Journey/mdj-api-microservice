@@ -93,6 +93,7 @@ public class PostServiceImpl implements PostService {
                     .thumbnailUrl(url)
                     .thumbnailS3Key(key)
                     .content(request.getContent())
+                    .contentJson(request.getContentJson())
                     .seoTitle(seoTitle)
                     .seoDescription(seoDescription)
                     .seoKeywords(seoKeywords)
@@ -190,6 +191,7 @@ public class PostServiceImpl implements PostService {
             // Cập nhật các trường cơ bản
             post.setTitle(request.getTitle());
             post.setContent(request.getContent());
+            post.setContentJson(request.getContentJson());
             post.setUpdatedDate(LocalDateTime.now());
             post.setPostStatus(request.getPostStatus());
 

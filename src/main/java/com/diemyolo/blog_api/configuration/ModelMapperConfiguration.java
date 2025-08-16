@@ -28,6 +28,7 @@ public class ModelMapperConfiguration {
             m.map(Post::getThumbnailUrl, PostResponse::setThumbnailUrl);
             m.map(Post::getThumbnailS3Key, PostResponse::setThumbnailS3Key);
             m.map(Post::getContent, PostResponse::setContent);
+            m.map(Post::getContentJson, PostResponse::setContentJson);
             m.map(Post::getSeoTitle, PostResponse::setSeoTitle);
             m.map(Post::getSeoDescription, PostResponse::setSeoDescription);
             m.map(Post::getSeoKeywords, PostResponse::setSeoKeywords);

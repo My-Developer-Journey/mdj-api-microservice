@@ -71,6 +71,9 @@ public class SecurityConfiguration {
                                 "/api/awss3/test"
                         ).permitAll()
                         .requestMatchers(
+                                "/api/categories/all"
+                        ).permitAll()
+                        .requestMatchers(
                                 "/api/admin/**",
                                 "/api/categories/**"
                         ).hasRole("ADMIN")
