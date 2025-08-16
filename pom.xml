@@ -157,6 +157,12 @@
 			<version>2.4.0</version>
 		</dependency>
 
+		<!-- Jackson for passing jsonode as parameters -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

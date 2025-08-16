@@ -2,6 +2,7 @@ package com.diemyolo.blog_api.model.response.post;
 
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
 import com.diemyolo.blog_api.model.response.user.UserResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ public class PostResponse {
     private String thumbnailUrl;
     private String thumbnailS3Key;
     private String content;
+    private JsonNode contentJson;
     private String seoTitle;
     private String seoDescription;
     private String seoKeywords;
