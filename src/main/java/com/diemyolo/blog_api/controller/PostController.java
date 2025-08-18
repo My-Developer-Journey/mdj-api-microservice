@@ -21,11 +21,36 @@ public class PostController {
 
     @PostMapping()
     public ResponseEntity<ApiResponse<Object>> addPost(
-            @Valid @RequestBody PostRequest request, @RequestParam("file") MultipartFile thumbnailFile
+            @Valid @RequestPart PostRequest request, @RequestParam("file") MultipartFile thumbnailFile
     ) {
         PostResponse response = postService.addPost(request, thumbnailFile);
 
-        return ResponseEntity.ok(ApiResponse.success("Add post successfully, please wait for admin verification!", response));
+        String message;
+        if (response.getPostStatus() == PostStatus.DRAFT) {
+            message = "Save draft successfully!";
+        } else if (response.getPostStatus() == PostStatus.SUBMITTED) {
+            message = "Add post successfully, please wait for admin verification!";
+        } else {
+            message = "Post added successfully!";
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(message, response));
+    }
+
+    @GetMapping("/draft")
+    public ResponseEntity<ApiResponse<Object>> checkDraftExist() {
+        PostResponse response = postService.checkDraftExist();
+
+        String message;
+        if (response == null) {
+            message = "No draft existed!";
+        } else if (response.getPostStatus() == PostStatus.SUBMITTED) {
+            message = "Draft found!";
+        } else {
+            message = "No draft existed!";
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(message, response));
     }
 
     @PutMapping("/{postId}/status")
