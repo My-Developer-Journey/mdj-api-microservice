@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface PostService {
     PostResponse addPost(PostRequest request, MultipartFile thumbnailFile);
+    PostResponse checkDraftExist();
     PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote);
     PostResponse updatePost(UUID postId, PostRequest request, MultipartFile thumbnailFile);
     PostResponse removePost(UUID postId);

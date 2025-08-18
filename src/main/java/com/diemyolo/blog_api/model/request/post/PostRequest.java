@@ -24,7 +24,7 @@ public class PostRequest {
     @NotBlank(message = "The content is required.")
     private String content;
 
-    @NotBlank(message = "The content is required.")
+    @NotNull(message = "The content is required.")
     private JsonNode contentJson;
 
     @NotNull(message = "Author ID is required.")

@@ -114,6 +114,22 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public PostResponse checkDraftExist() {
+        try {
+            User currentUser = authenticationService.findUserByJwt();
+
+            Optional<Post> draftPost = postRepository.findFirstByAuthorIdAndPostStatus(currentUser.getId(), PostStatus.DRAFT);
+
+            return draftPost.map(this::convertToResponse).orElse(null);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
     @Transactional
     @Override
     public PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote) {
@@ -169,7 +185,7 @@ public class PostServiceImpl implements PostService {
             // Tìm user hiện tại
             User currentUser = authenticationService.findUserByJwt();
 
-            // Chỉ author hoặc admin mới được chỉnh sửa
+            // Chỉ author mới được chỉnh sửa
             if (!post.getAuthor().getEmail().equals(currentUser.getEmail())) {
                 throw new CustomException("You are not authorized to update this post.", HttpStatus.FORBIDDEN);
             }
@@ -205,6 +221,19 @@ public class PostServiceImpl implements PostService {
             List<Tag> tags = validateIds(request.getTagIds(), tagRepository, Tag::getId, "Invalid tag IDs");
             if(!tags.isEmpty()){
                 post.setTags(tags);
+            }
+
+            if(post.getPostStatus() == PostStatus.DRAFT){
+                // Generate slug & SEO
+                String slug = generateSlug(request.getTitle());
+                String seoTitle = generateSeoTitle(request.getTitle());
+                String seoDescription = generateSeoDescription(request.getContent());
+                String seoKeywords = generateSeoKeywords(request.getTitle(), tags);
+                //set slug, seo mới
+                post.setSlug(slug);
+                post.setSeoTitle(seoTitle);
+                post.setSeoDescription(seoDescription);
+                post.setSeoKeywords(seoKeywords);
             }
 
             postRepository.save(post);
