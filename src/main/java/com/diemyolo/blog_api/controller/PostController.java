@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequestMapping("/api/posts")
@@ -78,5 +79,12 @@ public class PostController {
     ) {
         PostResponse response = postService.removePost(postId);
         return ResponseEntity.ok(ApiResponse.success("Post removed successfully", response));
+    }
+
+    @PostMapping()
+    public ResponseEntity<ApiResponse<List<PostResponse>>> addPost() {
+        List<PostResponse> response = postService.getUserPosts();
+
+        return ResponseEntity.ok(ApiResponse.success("User post fetched!", response));
     }
 }

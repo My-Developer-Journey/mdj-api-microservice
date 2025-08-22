@@ -6,6 +6,7 @@ import com.diemyolo.blog_api.model.response.post.PostResponse;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface PostService {
@@ -14,4 +15,6 @@ public interface PostService {
     PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote);
     PostResponse updatePost(UUID postId, PostRequest request, MultipartFile thumbnailFile);
     PostResponse removePost(UUID postId);
+
+    List<PostResponse> getUserPosts();
 }
