@@ -18,6 +18,7 @@ import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.PostService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -267,6 +268,26 @@ public class PostServiceImpl implements PostService {
             postRepository.save(post);
 
             return convertToResponse(post);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public List<PostResponse> getUserPosts() {
+        try {
+            User currentUser = authenticationService.findUserByJwt();
+
+            List<Post> posts = postRepository.findByAuthorId(
+                    currentUser.getId(),
+                    Sort.by(Sort.Direction.DESC, "updatedDate")
+            );
+
+            return posts.stream()
+                    .map(this::convertToResponse)
+                    .toList();
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
