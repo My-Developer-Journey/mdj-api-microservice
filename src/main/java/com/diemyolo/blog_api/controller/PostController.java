@@ -66,7 +66,7 @@ public class PostController {
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<Object>> updatePost(
             @PathVariable UUID postId,
-            @Valid @RequestBody PostRequest request, @RequestParam(value = "file", required = false) MultipartFile thumbnailFile
+            @Valid @RequestPart PostRequest request, @RequestParam(value = "file", required = false) MultipartFile thumbnailFile
     ) {
         PostResponse response = postService.updatePost(postId, request, thumbnailFile);
         return ResponseEntity.ok(ApiResponse.success("Post updated successfully", response));
