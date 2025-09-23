@@ -81,8 +81,8 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success("Post removed successfully", response));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<PostResponse>>> getUserPost() {
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getUserPosts() {
         List<PostResponse> response = postService.getUserPosts();
 
         return ResponseEntity.ok(ApiResponse.success("User post fetched!", response));
