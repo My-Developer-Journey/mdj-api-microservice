@@ -15,6 +15,6 @@ public interface PostService {
     PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote);
     PostResponse updatePost(UUID postId, PostRequest request, MultipartFile thumbnailFile);
     PostResponse removePost(UUID postId);
-
     List<PostResponse> getUserPosts();
+    PostResponse getPostBySlug(String slug);
 }

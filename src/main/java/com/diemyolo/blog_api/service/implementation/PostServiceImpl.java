@@ -295,6 +295,17 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    public PostResponse getPostBySlug(String slug){
+        try {
+            Post post = postRepository.findBySlug(slug).orElseThrow(() -> new CustomException("Post not found", HttpStatus.NOT_FOUND));
+            return convertToResponse(post);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
     private <T> List<T> validateIds(List<UUID> ids, JpaRepository<T, UUID> repository, Function<T, UUID> getIdFunc, String errorMessage) {
         try {
             if (ids == null || ids.isEmpty()) return new ArrayList<>();

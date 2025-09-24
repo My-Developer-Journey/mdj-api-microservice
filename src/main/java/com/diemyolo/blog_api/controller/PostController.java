@@ -87,4 +87,10 @@ public class PostController {
 
         return ResponseEntity.ok(ApiResponse.success("User post fetched!", response));
     }
+
+    @GetMapping("/{slug}")
+    public ResponseEntity<ApiResponse<PostResponse>> getPostBySlug(@PathVariable String slug) {
+        PostResponse response = postService.getPostBySlug(slug);
+        return ResponseEntity.ok(ApiResponse.success("Post fetched!", response));
+    }
 }
