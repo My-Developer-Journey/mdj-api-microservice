@@ -80,7 +80,7 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authz -> authz.baseUri("/oauth2/authorize"))
+                        .authorizationEndpoint(authz -> authz.baseUri("/api/oauth2/authorization"))
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserServiceImpl))
                         .successHandler(oAuth2LoginSuccessHandler)
                 )

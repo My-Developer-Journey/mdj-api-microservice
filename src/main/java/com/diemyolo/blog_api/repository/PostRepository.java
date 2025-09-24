@@ -19,4 +19,5 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     boolean existsByAuthorIdAndPostStatus(UUID authorId, PostStatus postStatus);
     Optional<Post> findFirstByAuthorIdAndPostStatus(UUID authorId, PostStatus postStatus);
     List<Post> findByAuthorId(UUID authorId, Sort sort);
+    Optional<Post> findBySlug(String slug);
 }
