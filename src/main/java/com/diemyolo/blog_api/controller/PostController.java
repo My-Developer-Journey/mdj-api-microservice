@@ -2,6 +2,7 @@ package com.diemyolo.blog_api.controller;
 
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
 import com.diemyolo.blog_api.model.common.ApiResponse;
+import com.diemyolo.blog_api.model.common.SuggestionResponse;
 import com.diemyolo.blog_api.model.request.post.PostRequest;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
 import com.diemyolo.blog_api.service.PostService;
@@ -20,6 +21,7 @@ public class PostController {
     @Autowired
     private PostService postService;
 
+    // User function
     @PostMapping()
     public ResponseEntity<ApiResponse<Object>> addPost(
             @Valid @RequestPart PostRequest request, @RequestParam("file") MultipartFile thumbnailFile
@@ -54,16 +56,6 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(message, response));
     }
 
-    @PutMapping("/{postId}/status")
-    public ResponseEntity<ApiResponse<Object>> updatePostStatus(
-            @PathVariable UUID postId,
-            @RequestParam PostStatus status,
-            @RequestParam(required = false) String rejectedNote
-    ) {
-        PostResponse response = postService.updatePostStatus(postId, status, rejectedNote);
-        return ResponseEntity.ok(ApiResponse.success("Post status updated successfully", response));
-    }
-
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<Object>> updatePost(
             @PathVariable UUID postId,
@@ -92,5 +84,30 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponse>> getPostBySlug(@PathVariable String slug) {
         PostResponse response = postService.getPostBySlug(slug);
         return ResponseEntity.ok(ApiResponse.success("Post fetched!", response));
+    }
+
+    // Admin function
+    @PutMapping("/{postId}/status")
+    public ResponseEntity<ApiResponse<Object>> updatePostStatus(
+            @PathVariable UUID postId,
+            @RequestParam PostStatus status,
+            @RequestParam(required = false) String rejectedNote
+    ) {
+        PostResponse response = postService.updatePostStatus(postId, status, rejectedNote);
+        return ResponseEntity.ok(ApiResponse.success("Post status updated successfully", response));
+    }
+
+    @PutMapping("/requests")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getPostRequests() {
+        List<PostResponse> response = postService.getPostRequests();
+
+        return ResponseEntity.ok(ApiResponse.success("Post request fetched!", response));
+    }
+
+    // AI function
+    @GetMapping("/recommendation")
+    public ResponseEntity<ApiResponse<SuggestionResponse>> suggestCategoriesAndTags(@RequestParam(name = "title", required = true) String title) {
+        SuggestionResponse result = postService.suggestCategoriesAndTags(title);
+        return ResponseEntity.ok(ApiResponse.success("Suggested successfully", result));
     }
 }

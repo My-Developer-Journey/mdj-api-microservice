@@ -7,6 +7,7 @@ import com.diemyolo.blog_api.entity.Post;
 import com.diemyolo.blog_api.entity.Tag;
 import com.diemyolo.blog_api.entity.User;
 import com.diemyolo.blog_api.exception.CustomException;
+import com.diemyolo.blog_api.model.common.SuggestionResponse;
 import com.diemyolo.blog_api.model.request.post.PostRequest;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
 import com.diemyolo.blog_api.repository.CategoryRepository;
@@ -16,7 +17,9 @@ import com.diemyolo.blog_api.repository.UserRepository;
 import com.diemyolo.blog_api.service.AWSS3Service;
 import com.diemyolo.blog_api.service.AuthenticationService;
 import com.diemyolo.blog_api.service.PostService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,6 +39,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private final ChatClient chatClient;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -46,13 +50,15 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private AWSS3Service awsS3Service;
 
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CategoryRepository categoryRepository, TagRepository tagRepository) {
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CategoryRepository categoryRepository, TagRepository tagRepository, ChatClient.Builder chatClientBuilder) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
+        this.chatClient = chatClientBuilder.build();
     }
 
+    // User function
     @Transactional
     @Override
     public PostResponse addPost(PostRequest request, MultipartFile thumbnailFile) {
@@ -124,50 +130,6 @@ public class PostServiceImpl implements PostService {
             Optional<Post> draftPost = postRepository.findFirstByAuthorIdAndPostStatus(currentUser.getId(), PostStatus.DRAFT);
 
             return draftPost.map(this::convertToResponse).orElse(null);
-        } catch (CustomException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error: " + e.getMessage());
-        }
-    }
-
-    @Transactional
-    @Override
-    public PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote) {
-        try {
-            // Kiểm tra quyền admin
-            User currentUser = authenticationService.findUserByJwt();
-            if (!currentUser.getRole().equals(Role.ADMIN)) {
-                throw new CustomException("You are not authorized to perform this action.", HttpStatus.FORBIDDEN);
-            }
-
-            // Tìm post
-            Post post = postRepository.findById(postId)
-                    .orElseThrow(() -> new CustomException("Post not found", HttpStatus.NOT_FOUND));
-
-            // Cập nhật status và các thời điểm liên quan
-            post.setPostStatus(status);
-
-            switch (status) {
-                case REJECTED -> {
-                    post.setRejectedAt(LocalDateTime.now());
-                    post.setRejectedNote(rejectedNote);
-                }
-                case ACCEPTED -> {
-                    post.setAcceptedAt(LocalDateTime.now());
-                }
-                case DRAFT -> {
-                    post.setRejectedAt(null);
-                    post.setRejectedNote(null);
-                }
-                case SUBMITTED -> {
-                    post.setSubmittedAt(LocalDateTime.now());
-                }
-            }
-
-            postRepository.save(post);
-
-            return convertToResponse(post);
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {
@@ -306,6 +268,121 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    // Admin function
+    @Override
+    public List<PostResponse> getPostRequests() {
+        try {
+            // Kiểm tra quyền admin
+            User currentUser = authenticationService.findUserByJwt();
+            if (!currentUser.getRole().equals(Role.ADMIN)) {
+                throw new CustomException("You are not authorized to perform this action.", HttpStatus.FORBIDDEN);
+            }
+
+            List<Post> posts = postRepository.findByPostStatus(PostStatus.SUBMITTED);
+
+            return posts.stream()
+                    .map(this::convertToResponse)
+                    .toList();
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    @Override
+    public PostResponse updatePostStatus(UUID postId, PostStatus status, @Nullable String rejectedNote) {
+        try {
+            // Kiểm tra quyền admin
+            User currentUser = authenticationService.findUserByJwt();
+            if (!currentUser.getRole().equals(Role.ADMIN)) {
+                throw new CustomException("You are not authorized to perform this action.", HttpStatus.FORBIDDEN);
+            }
+
+            // Tìm post
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new CustomException("Post not found", HttpStatus.NOT_FOUND));
+
+            // Cập nhật status và các thời điểm liên quan
+            post.setPostStatus(status);
+
+            switch (status) {
+                case REJECTED -> {
+                    post.setRejectedAt(LocalDateTime.now());
+                    post.setRejectedNote(rejectedNote);
+                }
+                case ACCEPTED -> {
+                    post.setAcceptedAt(LocalDateTime.now());
+                }
+                case DRAFT -> {
+                    post.setRejectedAt(null);
+                    post.setRejectedNote(null);
+                }
+                case SUBMITTED -> {
+                    post.setSubmittedAt(LocalDateTime.now());
+                }
+            }
+
+            postRepository.save(post);
+
+            return convertToResponse(post);
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    public SuggestionResponse suggestCategoriesAndTags(String title) {
+        try {
+            // Lấy danh sách categories và tags từ DB
+            List<String> categories = categoryRepository.findAll()
+                    .stream()
+                    .map(Category::getName)
+                    .toList();
+
+            List<String> tags = tagRepository.findAll()
+                    .stream()
+                    .map(Tag::getName)
+                    .toList();
+
+            // Tạo system prompt (yêu cầu AI trả JSON chuẩn)
+            final String systemTemplate = """
+            Here is the list of available categories: %s
+            Here is the list of available tags: %s
+
+            Task:
+            - Suggest 1–5 categories and tags from the above lists for the given title: "%s".
+            - Only choose from the given lists, do not invent new ones.
+            - If nothing matches, reply with:
+              {"categories": [], "tags": [], "message": "We currently don't have tags/category corresponding to the title in the database."}
+            - If the input is not a blog title, reply with:
+              {"categories": [], "tags": [], "message": "We only support finding suitable categories and tags, any questions outside cannot be answered."}
+            - Otherwise, reply strictly in JSON format:
+              {"categories": ["..."], "tags": ["..."]}
+            """;
+
+            String systemMessage = systemTemplate.formatted(categories, tags, title);
+
+            String aiResponse = this.chatClient.prompt()
+                    .system(c -> c.text(systemMessage))
+                    .user(title)
+                    .call()
+                    .content();
+
+            // Parse JSON về object
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(aiResponse, SuggestionResponse.class);
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+    // Other validation functions
     private <T> List<T> validateIds(List<UUID> ids, JpaRepository<T, UUID> repository, Function<T, UUID> getIdFunc, String errorMessage) {
         try {
             if (ids == null || ids.isEmpty()) return new ArrayList<>();

@@ -126,6 +126,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Page<UserResponse> getAllUsers(int page, int size, String sortBy, String sortDir) {
         try {
+            User currentUser = authenticationService.findUserByJwt();
+            if(currentUser.getRole() != Role.ADMIN){
+                throw new CustomException("You do not have permission to perform this action.", HttpStatus.FORBIDDEN);
+            }
             Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<User> usersPage = userRepository.findAll(pageable);

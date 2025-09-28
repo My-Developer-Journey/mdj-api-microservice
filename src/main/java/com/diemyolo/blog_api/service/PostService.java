@@ -1,6 +1,7 @@
 package com.diemyolo.blog_api.service;
 
 import com.diemyolo.blog_api.entity.Enumberable.PostStatus;
+import com.diemyolo.blog_api.model.common.SuggestionResponse;
 import com.diemyolo.blog_api.model.request.post.PostRequest;
 import com.diemyolo.blog_api.model.response.post.PostResponse;
 import org.springframework.lang.Nullable;
@@ -16,5 +17,7 @@ public interface PostService {
     PostResponse updatePost(UUID postId, PostRequest request, MultipartFile thumbnailFile);
     PostResponse removePost(UUID postId);
     List<PostResponse> getUserPosts();
+    List<PostResponse> getPostRequests();
     PostResponse getPostBySlug(String slug);
+    SuggestionResponse suggestCategoriesAndTags(String title);
 }

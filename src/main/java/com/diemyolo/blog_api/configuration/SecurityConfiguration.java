@@ -64,7 +64,8 @@ public class SecurityConfiguration {
                                 "/api/authentications/sign-in",
                                 "/api/authentications/sign-up",
                                 "/api/authentications/verify",
-                                "/oauth2/**"
+                                "/oauth2/**",
+                                "/api/tests/**"
                         ).permitAll()
                         .requestMatchers(
                                 "/api/awss3/upload",

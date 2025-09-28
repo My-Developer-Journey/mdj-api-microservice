@@ -20,6 +20,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // User function
     @GetMapping("profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
         UserResponse user = userService.getCurrentUser();
@@ -35,6 +36,15 @@ public class UserController {
         );
     }
 
+    @PutMapping("profile/avatar")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("email") String email) {
+        UserResponse user = userService.updateUserAvatar(file, email);
+        return ResponseEntity.ok(
+                ApiResponse.success("User avatar updated successfully", user)
+        );
+    }
+
+    // Admin function
     @PutMapping("/{userId}/status")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<UserResponse>> updateUserStatus(@PathVariable UUID userId) {
@@ -53,13 +63,5 @@ public class UserController {
 
         Page<UserResponse> users = userService.getAllUsers(page, size, sortBy, sortDir);
         return ResponseEntity.ok(ApiResponse.success("Get all users successfully", users));
-    }
-
-    @PutMapping("profile/avatar")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUserAvatar(@RequestParam("file") MultipartFile file, @RequestParam("email") String email) {
-        UserResponse user = userService.updateUserAvatar(file, email);
-        return ResponseEntity.ok(
-                ApiResponse.success("User avatar updated successfully", user)
-        );
     }
 }
