@@ -1,0 +1,10 @@
+../target
+.git
+blog-service/.idea
+*.iml
+*.log
+Dockerfile
+docker-compose.dev.yml
+docker-compose.prod.yml
+.env.dev
+.env.prod
