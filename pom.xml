@@ -19,6 +19,9 @@
         <module>auth-service</module>
         <module>user-service</module>
         <module>admin-service</module>
+        <module>aws-s3-service</module>
+        <module>interaction-service</module>
+        <module>notification-service</module>
     </modules>
 
     <!-- Build chỉ để định nghĩa chung -->
