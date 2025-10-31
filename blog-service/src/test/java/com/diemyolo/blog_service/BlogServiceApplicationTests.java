@@ -1,4 +1,4 @@
-package com.example.blog_service;
+package com.diemyolo.blog_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
