@@ -13,15 +13,6 @@ import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private static final String PHONE_NUMBER_REGEX = "^\\d{10}$";
-
-    private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
-
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
-        this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Override
     public UserResponse getCurrentUser() {
