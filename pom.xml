@@ -64,6 +64,13 @@
                 <artifactId>modelmapper</artifactId>
                 <version>3.2.4</version>
             </dependency>
+
+            <!-- Jakarta Persistence -->
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>3.2.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
