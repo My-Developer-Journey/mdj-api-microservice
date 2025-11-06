@@ -1,4 +1,4 @@
-package com.diemyolo.user_service.entity.oauth2;
+package com.diemyolo.user_service.entity.oauthv2;
 
 import com.diemyolo.user_service.entity.User;
 import org.springframework.security.core.GrantedAuthority;
