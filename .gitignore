@@ -2,10 +2,19 @@
 .idea/
 *.iml
 out/
+
 # Maven
 target/
+
 # Logs
 *.log
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Ignore environment variable
+.env.dev
+.env.prod
+.env.*
+!.env.example
