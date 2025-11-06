@@ -9,10 +9,10 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>admin-service</artifactId>
+	<artifactId>aws-s3-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>admin-service</name>
-	<description>Admin project for Blog Application</description>
+	<name>aws-s3-service</name>
+	<description>Aws s3 project for Blog Application</description>
 
 	<dependencies>
 		<dependency>

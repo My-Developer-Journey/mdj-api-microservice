@@ -9,9 +9,9 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>admin-service</artifactId>
+	<artifactId>blog-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>admin-service</name>
+	<name>blog-service</name>
 	<description>Admin project for Blog Application</description>
 
 	<dependencies>
