@@ -4,6 +4,4 @@ import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/authentications")
 @RestController
-public class AuthenticationController {
-
-}
+public class AuthenticationController {}

@@ -104,7 +104,7 @@ This repository follows a **production-like Git workflow**, even for solo develo
 
 ## 5. Branch Naming Convention
 
-Only `main` is long-living. All other branches are **short-living** and must be deleted after merge.
+Keep all the branches after merge (no deletion).
 
 ### 5.1 Feature branches
 
