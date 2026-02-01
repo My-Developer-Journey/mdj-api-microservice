@@ -6,9 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EmailServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-		assert true;
-	}
-
+  @Test
+  void contextLoads() {
+    assert true;
+  }
 }

@@ -18,3 +18,7 @@ Thumbs.db
 .env.prod
 .env.*
 !.env.example
+
+# Ignore service-level git config files
+**/.gitignore
+**/.gitattributes

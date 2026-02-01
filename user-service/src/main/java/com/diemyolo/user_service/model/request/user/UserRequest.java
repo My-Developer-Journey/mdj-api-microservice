@@ -12,21 +12,21 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
-    @NotBlank(message = "The email is required.")
-    private String email;
+  @NotBlank(message = "The email is required.")
+  private String email;
 
-    @NotBlank(message = "The username is required.")
-    private String displayName;
+  @NotBlank(message = "The username is required.")
+  private String displayName;
 
-    @NotBlank(message = "The phone is required.")
-    private String phoneNumber;
+  @NotBlank(message = "The phone is required.")
+  private String phoneNumber;
 
-    private @Nullable String bio;
+  private @Nullable String bio;
 
-    private @Nullable String facebookUrl;
+  private @Nullable String facebookUrl;
 
-    private @Nullable String githubUrl;
+  private @Nullable String githubUrl;
 
-    @NotNull(message = "The gender is required.")
-    private Gender gender;
+  @NotNull(message = "The gender is required.")
+  private Gender gender;
 }

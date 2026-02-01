@@ -2,21 +2,20 @@ package com.diemyolo.user_service.service;
 
 import com.diemyolo.user_service.model.request.user.UserRequest;
 import com.diemyolo.user_service.model.response.user.UserResponse;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.UUID;
-
 public interface UserService {
-    UserResponse getCurrentUser();
+  UserResponse getCurrentUser();
 
-    UserResponse updateUser(UserRequest request);
+  UserResponse updateUser(UserRequest request);
 
-    UserResponse updateUserStatus(UUID userId);
+  UserResponse updateUserStatus(UUID userId);
 
-    UserResponse getUserById(UUID userId);
+  UserResponse getUserById(UUID userId);
 
-    Page<UserResponse> getAllUsers(int page, int size, String sortBy, String sortDir);
+  Page<UserResponse> getAllUsers(int page, int size, String sortBy, String sortDir);
 
-    UserResponse updateUserAvatar(MultipartFile file, String userEmail);
+  UserResponse updateUserAvatar(MultipartFile file, String userEmail);
 }
