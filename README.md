@@ -62,7 +62,7 @@ Or using Maven:
 mvn spring-boot:run
 ```
 
-> ⚠️ You must configure environment variables or `application.yml` for DB connections.
+> ⚠️ You must configure environment variables or `application.properties` for DB connections.
 
 ---
 

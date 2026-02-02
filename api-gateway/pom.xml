@@ -2,36 +2,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Spring Boot Parent -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.7</version>
+		<relativePath />
+	</parent>
 
 	<groupId>com.diemyolo</groupId>
 	<artifactId>api-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
 	<name>api-gateway</name>
 	<description>API Gateway for Blog Microservices</description>
 
 	<properties>
 		<java.version>17</java.version>
-		<spring-boot.version>3.5.7</spring-boot.version>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>2025.1.0</spring-cloud.version>
+
+		<!-- Optional / external libs -->
+		<lombok.version>1.18.38</lombok.version>
+		<modelmapper.version>3.2.4</modelmapper.version>
 	</properties>
 
+	<!-- Spring Cloud BOM -->
 	<dependencyManagement>
 		<dependencies>
-			<!-- Import BOM Spring Boot -->
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${spring-boot.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
-			<!-- Spring Cloud Dependencies -->
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
@@ -39,43 +38,27 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
-			<!-- Lombok -->
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.18.38</version>
-			</dependency>
-
-			<!-- Swagger API Docs -->
-			<dependency>
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-				<version>2.1.0</version>
-			</dependency>
-
-			<!-- Actuator -->
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-starter-actuator</artifactId>
-				<version>4.0.1</version>
-				<scope>compile</scope>
-			</dependency>
-
-			<!-- ModelMapper -->
-			<dependency>
-				<groupId>org.modelmapper</groupId>
-				<artifactId>modelmapper</artifactId>
-				<version>3.2.4</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- Spring Cloud Gateway -->
+		<!-- Spring Cloud Gateway (Reactive) -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
+			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<version>4.0.4</version>
+		</dependency>
+
+		<!-- WebFlux (required for Gateway) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- Redis Reactive (optional: rate limit, cache, etc.) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 
 		<!-- Actuator -->
@@ -91,6 +74,13 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- ModelMapper (optional) -->
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>${modelmapper.version}</version>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -100,41 +90,22 @@
 	</dependencies>
 
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
-					<configuration>
-						<release>17</release>
-						<annotationProcessorPaths>
-							<path>
-								<groupId>org.projectlombok</groupId>
-								<artifactId>lombok</artifactId>
-								<version>1.18.38</version>
-							</path>
-						</annotationProcessorPaths>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-					<version>${spring-boot.version}</version>
-					<configuration>
-						<excludes>
-							<exclude>
-								<groupId>org.projectlombok</groupId>
-								<artifactId>lombok</artifactId>
-							</exclude>
-						</excludes>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-
 		<plugins>
+			<!-- Spring Boot -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<!-- Spotless (format code) -->
 			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
@@ -149,17 +120,12 @@
 				</configuration>
 				<executions>
 					<execution>
+						<phase>verify</phase>
 						<goals>
 							<goal>check</goal>
 						</goals>
-						<phase>verify</phase>
 					</execution>
 				</executions>
-			</plugin>
-			<!-- Spring Boot Maven Plugin -->
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
