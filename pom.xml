@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.diemyolo</groupId>
-    <artifactId>blog-api-microservice</artifactId>
+    <artifactId>blog-api-microservice-root</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
-    <name>blog-api-microservice</name>
-    <description>Aggregator project for Blog Microservices</description>
+    <name>blog-api-microservice-root</name>
+    <description>Reference Documentation for Blog Microservices</description>
 
     <properties>
         <java.version>17</java.version>
@@ -20,27 +20,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- Child module -->
-    <modules>
-        <module>blog-service</module>
-        <module>email-service</module>
-        <module>ai-service</module>
-        <module>auth-service</module>
-        <module>user-service</module>
-        <module>admin-service</module>
-        <module>media-service</module>
-        <module>interaction-service</module>
-        <module>payment-service</module>
-        <module>notification-service</module>
-    </modules>
-
-    <!-- Dependency management: versions will be managed by parent pom, child pom just need to declare to use -->
+    <!-- Dependency management: versions will be managed by parent pom, child pom just need to
+    declare to use -->
     <dependencyManagement>
         <dependencies>
             <!-- Import BOM Spring Boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId> <!-- Get the version for all dependencies belonging to spring-boot-dependency -->
+                <artifactId>spring-boot-dependencies</artifactId> <!-- Get the version for all dependencies belonging to
+                spring-boot-dependency -->
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>

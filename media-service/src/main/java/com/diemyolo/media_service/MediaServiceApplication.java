@@ -1,12 +1,12 @@
-package com.diemyolo.aws_s3_service;
+package com.diemyolo.media_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AwsS3ServiceApplication {
+public class MediaServiceApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(AwsS3ServiceApplication.class, args);
+    SpringApplication.run(MediaServiceApplication.class, args);
   }
 }
