@@ -19,11 +19,11 @@ public class ApiGatewayApplication {
   // 1) Rate limiter bean (token bucket)
   @Bean
   public RedisRateLimiter redisRateLimiter() {
-    // replenishRate: token/giây, burstCapacity: max token
+    // replenishRate: token/second, burstCapacity: max token
     return new RedisRateLimiter(1, 1);
   }
 
-  // 2) KeyResolver: limit theo IP (bạn có thể đổi theo userId, apiKey...)
+  // 2) KeyResolver: limit to IP (can change to userId, apiKey...)
   @Bean
   public KeyResolver ipKeyResolver() {
     return exchange ->
@@ -33,7 +33,7 @@ public class ApiGatewayApplication {
                 : "unknown");
   }
 
-  // 3) RouteLocator: dùng requestRateLimiter (KHÔNG dùng throttle.apply nữa)
+  // 3) RouteLocator: use requestRateLimiter
   @Bean
   public RouteLocator customRouteLocator(
       RouteLocatorBuilder builder, RedisRateLimiter rateLimiter, KeyResolver ipKeyResolver) {
