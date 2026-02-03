@@ -44,7 +44,7 @@ jobs:
           mvn -B verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
             -Dsonar.projectKey=My-Developer-Journey_mdj-api-microservice \
-            -Dsonar.organization=My-Developer-Journey \
+            -Dsonar.organization=my-developer-journey \
             -Dsonar.projectName=mdj-api-microservice \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=admin-service,ai-service,api-gateway,auth-service,blog-service,email-service,interaction-service,media-service,notification-service,payment-service,user-service \
