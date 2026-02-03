@@ -37,19 +37,19 @@ jobs:
             fi
           done
 
-      ## For 1 repo 1 service
-#      - name: SonarCloud analysis (per service)
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#        run: |
-#          for dir in admin-service ai-service api-gateway auth-service blog-service email-service interaction-service media-service notification-service payment-service user-service; do
-#            echo "Analyzing $dir"
-#            (
-#              cd $dir && mvn -B verify \
-#                org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-#                -Dsonar.projectKey=My-Developer-Journey_${dir} \
-#                -Dsonar.organization=my-developer-journey \
-#                -Dsonar.projectName=${dir} \
-#                -Dsonar.host.url=https://sonarcloud.io
-#            ) || exit 1
-#          done
+      # For 1 repo 1 service
+      - name: SonarCloud analysis (per service)
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          for dir in admin-service ai-service api-gateway auth-service blog-service email-service interaction-service media-service notification-service payment-service user-service; do
+            echo "Analyzing $dir"
+            (
+              cd $dir && mvn -B verify \
+                org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                -Dsonar.projectKey=My-Developer-Journey_${dir} \
+                -Dsonar.organization=my-developer-journey \
+                -Dsonar.projectName=${dir} \
+                -Dsonar.host.url=https://sonarcloud.io
+            ) || exit 1
+          done
