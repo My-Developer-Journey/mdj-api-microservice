@@ -47,10 +47,13 @@ jobs:
               echo "===> Sonar analyze $SERVICE_NAME"
 
               (
-                cd "$dir" && mvn -B verify sonar:sonar \
-                  -Dsonar.projectKey=diemyolo_$SERVICE_NAME \
-                  -Dsonar.organization=diemyolo \
-                  -Dsonar.projectName=$SERVICE_NAME
+                cd "$dir" && mvn -B verify \
+                org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                -Dsonar.projectKey=diemyolo_$SERVICE_NAME \
+                -Dsonar.organization=diemyolo \
+                -Dsonar.projectName=$SERVICE_NAME \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.cpd.exclusions=**/*Config.java
               ) || exit 1
             fi
           done
