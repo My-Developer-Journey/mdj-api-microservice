@@ -5,30 +5,35 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<!-- Spring Boot Parent -->
+	<!-- ================= SPRING BOOT PARENT ================= -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+		<version>3.4.2</version>
 		<relativePath />
 	</parent>
 
+	<!-- ================= PROJECT INFO ================= -->
 	<groupId>com.diemyolo</groupId>
 	<artifactId>api-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api-gateway</name>
 	<description>API Gateway for Blog Microservices</description>
+	<packaging>jar</packaging>
 
+	<!-- ================= PROPERTIES ================= -->
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2025.1.0</spring-cloud.version>
 
-		<!-- Optional / external libs -->
-		<lombok.version>1.18.38</lombok.version>
+		<!-- Spring Cloud version compatible with Spring Boot 3.4.x -->
+		<spring-cloud.version>2024.0.1</spring-cloud.version>
+
+		<!-- External libraries not managed by Spring Boot BOM -->
 		<modelmapper.version>3.2.4</modelmapper.version>
 	</properties>
 
-	<!-- Spring Cloud BOM -->
+	<!-- ================= SPRING CLOUD BOM ================= -->
+	<!-- Provides version alignment for all Spring Cloud dependencies -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -41,62 +46,75 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- ================= DEPENDENCIES ================= -->
 	<dependencies>
-		<!-- Spring Cloud Gateway (Reactive) -->
+
+		<!-- Spring Cloud Gateway (Reactive, non-blocking) -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway</artifactId>
-			<version>4.0.4</version>
 		</dependency>
 
-		<!-- WebFlux (required for Gateway) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
-
-		<!-- Redis Reactive (optional: rate limit, cache, etc.) -->
+		<!-- Reactive Redis (rate limiting, caching, etc.) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 
-		<!-- Actuator -->
+		<!-- Actuator (health checks, metrics, readiness/liveness) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<!-- Lombok -->
+		<!-- Lombok (compile-time only) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- ModelMapper (optional) -->
+		<!-- Dotenv -->
+		<dependency>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>dotenv-java</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+		<!-- ModelMapper (optional utility, not managed by Spring BOM) -->
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>${modelmapper.version}</version>
 		</dependency>
 
-		<!-- Test -->
+		<!-- Testing (Reactive stack, no servlet container) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<!-- Gateway is reactive; servlet container is not required -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
+
 	</dependencies>
 
+	<!-- ================= BUILD ================= -->
 	<build>
 		<plugins>
-			<!-- Spring Boot -->
+
+			<!-- Spring Boot Maven Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
+						<!-- Lombok is not required at runtime -->
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
@@ -105,7 +123,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- Spotless (format code) -->
+			<!-- Code formatting and style enforcement -->
 			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
@@ -127,6 +145,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
