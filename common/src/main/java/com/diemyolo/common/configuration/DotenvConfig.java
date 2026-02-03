@@ -1,4 +1,4 @@
-package com.diemyolo.api_gateway.configuration;
+package com.diemyolo.common.configuration;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
