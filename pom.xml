@@ -105,6 +105,32 @@
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>5.1.0.4751</version>
                 </plugin>
+
+                <!-- JaCoCo: Code Coverage -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.12</version>
+                    <executions>
+                        <!-- Attach JaCoCo agent before tests -->
+                        <execution>
+                            <id>prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                            <phase>initialize</phase>
+                        </execution>
+
+                        <!-- Generate coverage report for Sonar -->
+                        <execution>
+                            <id>report</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                            <phase>verify</phase>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
