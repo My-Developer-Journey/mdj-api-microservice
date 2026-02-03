@@ -41,19 +41,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          for dir in */; do
-            if [ -f "$dir/pom.xml" ]; then
-              SERVICE_NAME=$(basename "$dir")
-              echo "===> Sonar analyze $SERVICE_NAME"
-
-              (
-                cd "$dir" && mvn -B verify \
-                org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-                -Dsonar.projectKey=diemyolo_$SERVICE_NAME \
-                -Dsonar.organization=diemyolo \
-                -Dsonar.projectName=$SERVICE_NAME \
-                -Dsonar.host.url=https://sonarcloud.io \
-                -Dsonar.cpd.exclusions=**/*Config.java
-              ) || exit 1
-            fi
-          done
+          mvn -B verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+            -Dsonar.projectKey=diemyolo_backend \
+            -Dsonar.organization=diemyolo \
+            -Dsonar.projectName=backend \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.sources=admin-service,blog-service,email-service,ai-service \
+            -Dsonar.tests=admin-service,blog-service,email-service,ai-service \
+            -Dsonar.cpd.exclusions=**/*Config.java
