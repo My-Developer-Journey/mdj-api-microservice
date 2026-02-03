@@ -43,9 +43,9 @@ jobs:
         run: |
           mvn -B verify \
             org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-            -Dsonar.projectKey=diemyolo_backend \
+            -Dsonar.projectKey=My-Developer-Journey_mdj-api-microservice \
             -Dsonar.organization=diemyolo \
-            -Dsonar.projectName=backend \
+            -Dsonar.projectName=mdj-api-microservice \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=admin-service,blog-service,email-service,ai-service \
             -Dsonar.tests=admin-service,blog-service,email-service,ai-service \
