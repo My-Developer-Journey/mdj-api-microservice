@@ -37,16 +37,18 @@ jobs:
             fi
           done
 
-      - name: SonarCloud analysis (all services)
+      - name: SonarCloud analysis (per service)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn -B verify \
-            org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
-            -Dsonar.projectKey=My-Developer-Journey_mdj-api-microservice \
-            -Dsonar.organization=my-developer-journey \
-            -Dsonar.projectName=mdj-api-microservice \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.sources=admin-service,ai-service,api-gateway,auth-service,blog-service,email-service,interaction-service,media-service,notification-service,payment-service,user-service \
-            -Dsonar.tests=admin-service,ai-service,api-gateway,auth-service,blog-service,email-service,interaction-service,media-service,notification-service,payment-service,user-service \
-            -Dsonar.cpd.exclusions=**/*Config.java
+          for dir in admin-service ai-service api-gateway auth-service blog-service email-service interaction-service media-service notification-service payment-service user-service; do
+            echo "Analyzing $dir"
+            (
+              cd $dir && mvn -B verify \
+                org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+                -Dsonar.projectKey=My-Developer-Journey_${dir} \
+                -Dsonar.organization=my-developer-journey \
+                -Dsonar.projectName=${dir} \
+                -Dsonar.host.url=https://sonarcloud.io
+            ) || exit 1
+          done
