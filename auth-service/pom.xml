@@ -25,6 +25,9 @@
 	<properties>
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<sonar.cpd.exclusions>
+			**/configuration/**/*
+		</sonar.cpd.exclusions>
 
 		<!-- External libraries not managed by Spring Boot BOM -->
 		<modelmapper.version>3.2.4</modelmapper.version>

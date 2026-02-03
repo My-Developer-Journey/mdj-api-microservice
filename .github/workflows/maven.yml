@@ -46,8 +46,11 @@ jobs:
               SERVICE_NAME=$(basename "$dir")
               echo "===> Sonar analyze $SERVICE_NAME"
 
-              (cd "$dir" && mvn -B verify sonar:sonar \
-                -Dsonar.projectKey=diemyolo_$SERVICE_NAME \
-                -Dsonar.organization=diemyolo \
-                -Dsonar.projectName=$SERVICE_NAME \
-              ) ||
+              (
+                cd "$dir" && mvn -B verify sonar:sonar \
+                  -Dsonar.projectKey=diemyolo_$SERVICE_NAME \
+                  -Dsonar.organization=diemyolo \
+                  -Dsonar.projectName=$SERVICE_NAME
+              ) || exit 1
+            fi
+          done
